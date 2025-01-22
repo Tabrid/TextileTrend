@@ -1,5 +1,7 @@
 'use client';
 
+import AutoChangingBanner3 from "@/components/AutoChangingBanner3/page";
+import AutoChangingBanner4 from "@/components/AutoChangingBanner4/page";
 import CelebritySection from "@/components/CelebritySection/page";
 import Exclusive from "@/components/Exclusive/page";
 import ExclusiveContent from "@/components/ExclusiveContent/page";
@@ -10,9 +12,6 @@ import Trending from "@/components/Trending/page";
 import Image from "next/image";
 
 export default function Home() {
-
-
-
   return (
     <main className="overflow-x-hidden">
       <Trending />
@@ -20,20 +19,9 @@ export default function Home() {
       <ExclusiveContent />
       <CelebritySection />
       <FoodAndTravel />
-      <div className="grid grid-cols-2 gap-10 my-14 mx-20">
-        <Image
-          width={600}
-          height={100}
-          src="https://i.ibb.co/WK3TZpP/rec-co-jpg.png"
-          alt="Fresh Stories"
-          className="w-full h-[100px] object-cover"
-        /><Image
-          width={600}
-          height={100}
-          src="https://i.ibb.co/WK3TZpP/rec-co-jpg.png"
-          alt="Fresh Stories"
-          className="w-full h-[100px] object-cover"
-        />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-10 my-14 md:mx-20 lg:mx-20">
+        <AutoChangingBanner3 />
+        <AutoChangingBanner4 />
       </div>
       <Exclusive />
       <Publications />

@@ -1,8 +1,15 @@
+'use client'
+
+import axios from "axios";
 import Image from "next/image";
-import React from "react";
+import { useRouter } from "next/navigation";
+import React, { use, useEffect, useState } from "react";
 import Slider from "react-slick";
+import baseUrl from "../services/baseUrl";
 
 const Publications = () => {
+  const router = useRouter();
+  const [publicationsData, setPublicationsData] = useState([]);
   // Slider settings
   const settings = {
     dots: false,
@@ -34,49 +41,44 @@ const Publications = () => {
     ],
   };
 
-  // Publication data
-  const publications = [
-    {
-      id: 1,
-      image: "https://i.ibb.co/VDHhthM/38-proyectos-agropecuarios-1024x576.jpg",
-      title: "May 2024",
-    },
-    {
-      id: 2,
-      image: "https://i.ibb.co/VDHhthM/38-proyectos-agropecuarios-1024x576.jpg",
-      title: "April 2024",
-    },
-    {
-      id: 3,
-      image: "https://i.ibb.co/VDHhthM/38-proyectos-agropecuarios-1024x576.jpg",
-      title: "March 2024",
-    },
-    {
-      id: 4,
-      image: "https://i.ibb.co/VDHhthM/38-proyectos-agropecuarios-1024x576.jpg",
-      title: "February 2024",
-    },
-  ];
+  useEffect(() => {
+    const fetchPublications = async () => {
+      try {
+        const response = await axios.get(
+          `${baseUrl}/api/publications`
+        );
+        setPublicationsData(response.data);
+      } catch (error) {
+        console.error("Error fetching publications:", error);
+      }
+    };
 
+    fetchPublications();
+  }, []);
+
+ 
+  const navigateToCategory = (slug) => {
+    router.push(`/publication/${slug}`);
+  };
   return (
-    <div className=" py-8 px-10">
+    <div className=" py-8 px-6 md:px-10 lg:px-10">
       <div className="container mx-auto">
         {/* Section Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-lg font-bold">Latest Publications</h2>
-          <a href="#" className="text-red-500 hover:underline">
+          <h1 className="text-red-500 hover:underline cursor-pointer" onClick={() => router.push("/publication")}>
             View More
-          </a>
+          </h1>
         </div>
 
         {/* Carousel */}
         <Slider {...settings}>
-          {publications.map((publication) => (
-            <div key={publication.id} className="p-2 relative">
+          {publicationsData.map((publication) => (
+            <div key={publication._id} className="p-2 relative cursor-pointer" onClick={() => navigateToCategory(publication.slug)}>
               <div className="bg-white rounded shadow overflow-hidden ">
-                <div className="relative w-full h-80">
+                <div className="relative w-full h-[450px]">
                   <Image
-                    src={publication.image}
+                    src={`${baseUrl}/${publication.frontpage}`}
                     alt={publication.title}
                     className="w-full h-full object-cover"
                     width={300}
@@ -88,7 +90,7 @@ const Publications = () => {
 
 
               </div>
-              <div className="p-4 text-center absolute bottom-4 right-[30%]">
+              <div className="p-4 text-center absolute bottom-4 left-0 right-0">
                 <h1 className="bg-red-500 text-white py-2 px-4 rounded text-center">
                   {publication.title}
                 </h1>

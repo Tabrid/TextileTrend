@@ -1,76 +1,67 @@
-import React from "react";
+import React, { use, useEffect, useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import baseUrl from "../services/baseUrl";
 
 const CelebritySection = () => {
-  // Data for celebrity articles
-  const articles = [
-    {
-      id: 1,
-      category: "Exclusive",
-      title: "Kristen Stewart Visits the Toronto Film Festival with New Boyfriend",
-      image: "https://i.ibb.co/sPRGM7D/Link-1.png", // Replace with your image URL
-      author: "Cara Buch",
-      date: "September 23, 2021",
-      highlight: true,
-    },
-    {
-      id: 2,
-      title: "Celebrity Make-up Artist Gary Meyers Shows you His Beauty Tricks",
-      image: "https://i.ibb.co/sPRGM7D/Link-1.png", // Replace with your image URL
-      author: "Dara Bush",
-      date: "September 23, 2021",
-    },
-    {
-      id: 3,
-      title: "The Biggest Hollywood Celebrities Visit the Ranches of California",
-      image: "https://i.ibb.co/sPRGM7D/Link-1.png", // Replace with your image URL
-      author: "Zan Rush",
-      date: "September 23, 2021",
-    },
-    {
-      id: 4,
-      title: "The Most Popular Celebrity Name List of the Millennium is Here",
-      image: "https://i.ibb.co/sPRGM7D/Link-1.png", // Replace with your image URL
-      author: "Zan Rush",
-      date: "September 23, 2021",
-    },
-    {
-      id: 5,
-      title: "Fashion Finder: Biggest Shows, Parties and Celebrity for New Years",
-      image: "https://i.ibb.co/sPRGM7D/Link-1.png", // Replace with your image URL
-      author: "Zan Rush",
-      date: "September 23, 2021",
-    },
-    {
-      id: 6,
-      title: "iTunes is Now the Second Biggest Name in Music World Giants",
-      image: "https://i.ibb.co/sPRGM7D/Link-1.png", // Replace with your image URL
-      author: "Zan Rush",
-      date: "September 25, 2021",
-    },
-  ];
+  const router = useRouter();
+  const [celebrities, setCelebrities] = useState([]);
+  useEffect(() => {
+    const fetchCelebrities = async () => {
+      try {
+        const response = await fetch(
+          `${baseUrl}/api/news/category/tread-and-export`
+        )
+        const data = await response.json();
+        setCelebrities(data);
+      } catch (error) {
+        console.error("Error fetching celebrities:", error);
+      }
+    }
 
+    fetchCelebrities();
+  }, []);
+  function formatDate(inputDate) {
+    if (!inputDate) {
+      console.error('Invalid date input:', inputDate);
+      return 'Invalid Date'; // Return a fallback value
+    }
+
+    const date = new Date(inputDate);
+
+    if (isNaN(date.getTime())) {
+      console.error('Unable to parse date:', inputDate);
+      return 'Invalid Date'; // Return a fallback value
+    }
+
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Intl.DateTimeFormat('en-US', options).format(date);
+  }
+  const handleTitleClick = (slug) => {
+    router.push(`/blog/${slug}`);
+};
   return (
     <div className="bg-white py-8 px-10">
       <div className="container mx-auto">
         {/* Section Header */}
         <div className="mb-6">
-          <h2 className="text-xl font-bold">Celebrity</h2>
+          <h2 className="text-xl font-bold">Tread & Export</h2>
         </div>
 
         {/* Highlighted Articles */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {articles.slice(0, 2).map((article) => (
+          {celebrities.slice(0, 2).map((article) => (
             <div
               key={article.id}
-              className={` overflow-hidden shadow-sm   flex`}
+              className={` overflow-hidden shadow-sm  md:flex lg:flex block cursor-pointer `} 
+              onClick={() => handleTitleClick(article.slug)}
             >
               <Image
-                src={article.image}
+                src={`${baseUrl}/${article.coverImage}`}
                 alt={article.title}
                 width={400}
                 height={250}
-                className="w-full h-auto object-cover"
+                className="w-full md:w-7/12 lg:w-7/12 h-auto object-cover"
               />
               <div className="p-4">
                 {article.category && (
@@ -80,30 +71,25 @@ const CelebritySection = () => {
                 )}
                 <h3 className="text-sm font-bold mt-2">{article.title}</h3>
                 <p className="text-xs text-gray-500  flex items-center gap-4 mt-2">
-                  <Image
-                    src={'https://i.ibb.co/PcdSRWd/20241029-232300.jpg'}
-                    alt={article.title}
-                    width={40}
-                    height={40}
-                    className="w-[40px] h-[40px] object-cover rounded-full"
-                  /> {article.author} - {article.date}
+                  By Admin - {article.createdAt &&   formatDate(article.createdAt)}
                 </p>
               </div>
             </div>
           ))}
         </div>
-        <div className="grid grid-cols-2 mt-6 md:grid-cols-4 gap-6">
-          {articles.slice(2, ).map((article) => (
+        <div className="grid grid-cols-1 mt-6 md:grid-cols-4 lg:grid-cols-4 gap-6">
+          {celebrities.slice(2,10).map((article) => (
             <div
               key={article.id}
-              className={` overflow-hidden shadow-sm `}
+              className={` overflow-hidden shadow-sm  cursor-pointer`}
+              onClick={() => handleTitleClick(article.slug)}
             >
               <Image
-                src={article.image}
+               src={`${baseUrl}/${article.coverImage}`}
                 alt={article.title}
                 width={400}
                 height={250}
-                className="w-full h-auto object-cover"
+                className="w-full h-[250px] object-cover"
               />
               <div className="p-4">
                 {article.category && (
@@ -113,13 +99,7 @@ const CelebritySection = () => {
                 )}
                 <h3 className="text-sm font-bold mt-2">{article.title}</h3>
                 <p className="text-xs text-gray-500  flex items-center gap-4 mt-2">
-                  <Image
-                    src={'https://i.ibb.co/PcdSRWd/20241029-232300.jpg'}
-                    alt={article.title}
-                    width={40}
-                    height={40}
-                    className="w-[40px] h-[40px] object-cover rounded-full"
-                  /> {article.author} - {article.date}
+                  By Admin - {article.createdAt &&    formatDate(article.createdAt)}
                 </p>
               </div>
             </div>

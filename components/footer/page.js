@@ -1,22 +1,80 @@
-import React from "react";
+'use client';
+
+import Image from "next/image";
+import React, { use, useEffect, useState } from "react";
+import { FaFacebookSquare, FaInstagram, FaTwitter, FaYoutube } from "react-icons/fa";
+import logo from "@/public/images/logo.jpg";
+import { useRouter } from "next/navigation";
+import axios from "axios";
+import baseUrl from "../services/baseUrl";
 
 const Footer = () => {
+  const router = useRouter();
+  const [categories, setCategories] = useState([]);
+  const [news, setNews] = useState([]);
+  const API_URL = `${baseUrl}/api/categories`;
+  useEffect(() => {
+    // Fetch categories from API
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch(API_URL);
+        const data = await response.json();
+        setCategories(data);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+    const fetchNews = async () => {
+      try {
+        const response = await axios.get(`${baseUrl}/api/news`);
+        setNews(response.data);
+        console.log(response);
+        
+      } catch (error) {
+        console.error("Error fetching news:", error);
+      }
+    };
+
+    fetchNews();
+    fetchCategories();
+  }, [API_URL]);
+  const navigateToCategory = (slug) => {
+    setSearchTerm("");
+    router.push(`/category/${slug}`);
+  };
   return (
-    <footer className="bg-gray-100 text-gray-700 py-8 ">
+    <footer className="bg-white text-gray-700 py-8 ">
       <div className="container mx-auto px-4 md:px-8">
         {/* Header with title */}
-        <div className="border-b flex justify-between items-center border-gray-300 pb-4 mb-4">
-          <h1 className="text-2xl font-semibold">Textile Trend</h1>
+        <div className="border-b md:flex lg:flex justify-between items-center border-gray-300 pb-4 mb-4">
+          <div className="hidden md:block lg:block">
+            <Image
+              width={600}
+              height={100}
+              src={logo}
+              alt="Fresh Stories"
+              className="w-[200px] h-full object-cover"
+            />
+          </div>
+          <div className="md:hidden lg:hidden flex justify-center">
+            <Image
+              width={600}
+              height={100}
+              src={logo}
+              alt="Fresh Stories"
+              className="w-[200px] h-full object-cover"
+            />
+          </div>
           <nav className="flex flex-wrap space-x-4 mt-2 text-sm">
-            <a href="#" className="hover:underline">Music</a>
-            <a href="#" className="hover:underline">Celebrity</a>
-            <a href="#" className="hover:underline">Politics</a>
-            <a href="#" className="hover:underline">Photos</a>
-            <a href="#" className="hover:underline">Travel</a>
-            <a href="#" className="hover:underline">Food</a>
-            <a href="#" className="hover:underline">Marketing</a>
-            <a href="#" className="hover:underline">Tech</a>
-            <a href="#" className="hover:underline">Makeup</a>
+            {categories.map((category) => (
+              <button
+                key={category._id}
+                onClick={() => navigateToCategory(category.slug)}
+                className="text-gray-600  hover:underline hover:text-red-500"
+              >
+                {category.name}
+              </button>
+            ))}
           </nav>
         </div>
 
@@ -31,16 +89,16 @@ const Footer = () => {
             </p>
             <div className="flex space-x-4 mt-4">
               <a href="#" className="text-black hover:text-gray-700">
-                <i className="fab fa-facebook-square text-xl"></i>
+                <FaFacebookSquare className="text-xl" />
               </a>
               <a href="#" className="text-black hover:text-gray-700">
-                <i className="fab fa-instagram text-xl"></i>
+                <FaInstagram className="text-xl" />
               </a>
               <a href="#" className="text-black hover:text-gray-700">
-                <i className="fab fa-x-twitter text-xl"></i>
+                <FaTwitter className="text-xl" />
               </a>
               <a href="#" className="text-black hover:text-gray-700">
-                <i className="fab fa-youtube text-xl"></i>
+                <FaYoutube className="text-xl" />
               </a>
             </div>
           </div>
@@ -60,24 +118,13 @@ const Footer = () => {
           <div>
             <h2 className="text-lg font-semibold mb-4">The latest</h2>
             <ul className="space-y-3">
-              <li>
-                <a href="#" className="text-sm hover:underline">
-                  Social Media Marketing for Panchaless is Meant for Women
-                </a>
-                <p className="text-xs text-gray-500">Marketing - September 23, 2023</p>
-              </li>
-              <li>
-                <a href="#" className="text-sm hover:underline">
-                  A Look at How Social Media & Mobile Gaming Can Increase Sales
-                </a>
-                <p className="text-xs text-gray-500">Travel - September 25, 2023</p>
-              </li>
-              <li>
-                <a href="#" className="text-sm hover:underline">
-                  Cover Girl Announces Star Shine Makeup Line is Due for Next December
-                </a>
-                <p className="text-xs text-gray-500">Makeup - September 26, 2023</p>
-              </li>
+              {news?.slice(0, 3).map((newsItem) => (
+                <li key={newsItem._id}>
+                  <a href={`/blog/${newsItem.slug}`} className="text-sm hover:underline">
+                    {newsItem.title}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
 

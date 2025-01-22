@@ -1,7 +1,26 @@
+'use client'
 import Image from "next/image";
-import React from "react";
+import { useRouter } from "next/navigation";
+import React, { use, useEffect, useState } from "react";
+import baseUrl from "../services/baseUrl";
 
 const FoodAndTravel = () => {
+  const router = useRouter();
+  const [sustainability, setSustainability] = useState([]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(
+          `${baseUrl}/api/news/category/sustainability`
+        );
+        const data = await response.json();
+        setSustainability(data);
+      } catch (error) {
+        console.error("Error fetching exclusive content:", error);
+      }
+    }
+    fetchData();
+  }, []);
   const articles = [
     {
       id: 1,
@@ -79,30 +98,66 @@ const FoodAndTravel = () => {
       image: "https://i.ibb.co/bKhbyxg/Link-4.png", // Replace with real image URL
     },
   ];
+  function formatDate(inputDate) {
+    if (!inputDate) {
+      console.error('Invalid date input:', inputDate);
+      return 'Invalid Date'; // Return a fallback value
+    }
 
+    const date = new Date(inputDate);
+
+    if (isNaN(date.getTime())) {
+      console.error('Unable to parse date:', inputDate);
+      return 'Invalid Date'; // Return a fallback value
+    }
+
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Intl.DateTimeFormat('en-US', options).format(date);
+  }
+
+  function formatDate(inputDate) {
+    if (!inputDate) {
+      console.error('Invalid date input:', inputDate);
+      return 'Invalid Date'; // Return a fallback value
+    }
+
+    const date = new Date(inputDate);
+
+    if (isNaN(date.getTime())) {
+      console.error('Unable to parse date:', inputDate);
+      return 'Invalid Date'; // Return a fallback value
+    }
+
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Intl.DateTimeFormat('en-US', options).format(date);
+  }
+  const handleTitleClick = (slug) => {
+    router.push(`/blog/${slug}`);
+  };
   return (
     <div className="bg-white px-10 mt-10">
       {/* Header */}
       <div className="flex justify-between items-center border-b-4 border-[#EC3535]  pb-2 mb-6">
-        <h2 className="text-2xl font-bold">Food & travel</h2>
-        <a href="#" className="text-red-500 text-sm font-semibold hover:underline">
+        <h2 className="text-2xl font-bold">Sustainability</h2>
+        <h1  className="text-red-500 text-sm font-semibold hover:underline cursor-pointer" onClick={()=>router.push('/category/sustainability')}>
           VIEW ALL →
-        </a>
+        </h1>
       </div>
 
       {/* Featured Articles */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {articles.map((article) => (
+        {sustainability.slice(0, 4).map((article) => (
           <div
             key={article.id}
-            className={` overflow-hidden shadow-sm `}
+            className={` overflow-hidden shadow-sm cursor-pointer`}
+            onClick={() => handleTitleClick(article.slug)}
           >
             <Image
-              src={article.image}
+              src={`${baseUrl}/${article.coverImage}`}
               alt={article.title}
               width={400}
               height={250}
-              className="w-full h-auto object-cover"
+              className="w-full h-[250px] object-cover"
             />
             <div className="p-4">
               {article.category && (
@@ -112,13 +167,7 @@ const FoodAndTravel = () => {
               )}
               <h3 className="text-sm font-bold mt-2">{article.title}</h3>
               <p className="text-xs text-gray-500  flex items-center gap-4 mt-2">
-                <Image
-                  src={'https://i.ibb.co/PcdSRWd/20241029-232300.jpg'}
-                  alt={article.title}
-                  width={40}
-                  height={40}
-                  className="w-[40px] h-[40px] object-cover rounded-full"
-                /> {article.author} - {article.date}
+                By Admin - {article.createdAt &&    formatDate(article.createdAt)}
               </p>
             </div>
           </div>
@@ -127,19 +176,19 @@ const FoodAndTravel = () => {
 
       {/* Smaller Articles */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {smallerArticles.map((article) => (
-          <div key={article.id} className="flex space-x-3">
+        {sustainability.slice(4, 12).map((article) => (
+          <div key={article.id} className="flex space-x-3 cursor-pointer" onClick={() => handleTitleClick(article.slug)}>
             <Image
               width={100}
               height={100}
-              src={article.image}
+              src={`${baseUrl}/${article.coverImage}`}
               alt={article.title}
               className="w-16 h-16 object-cover "
             />
             <div className="flex flex-col">
-              {article.tag && (
+              {article.category && (
                 <span className="text-red-500 text-xs uppercase font-bold mb-1">
-                  {article.tag}
+                  {article.category}
                 </span>
               )}
               <p className="text-sm font-semibold">{article.title}</p>

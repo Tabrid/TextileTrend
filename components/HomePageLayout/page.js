@@ -1,77 +1,102 @@
+'use client'
+
 import Image from "next/image";
-import React from "react";
+import { useRouter } from "next/navigation";
+import React, { use, useEffect, useState } from "react";
+import AutoChangingBanner1 from "../AutoChangingBanner1/page";
+import AutoChangingBanner2 from "../AutoChangingBanner2/page";
+import baseUrl from "../services/baseUrl";
 
 const HomePageLayout = () => {
-    const freshStories = [
-        {
-            id: 1,
-            title: "Cover Girl Announces Star Shine Makeup Line Is Due for Next December",
-            category: "Beauty",
-            date: "September 29, 2021",
-        },
-        {
-            id: 2,
-            title: "Customer Engagement: New Strategy for the Economy",
-            category: "Marketing",
-            date: "September 29, 2021",
-        },
-        {
-            id: 3,
-            title: "Social Media Marketing for Franchises Is Meant for Women",
-            category: "Social Media",
-            date: "September 29, 2021",
-        },
-        {
-            id: 4,
-            title: "Mobile Marketing Is Said to Be the Future of E-Commerce",
-            category: "Tech",
-            date: "September 29, 2021",
-        },
-    ];
+    const router = useRouter();
+    const [fresh, setFresh] = useState([]);
+    const [popular, setPopular] = useState([]);
+    const [trending, setTrending] = useState({});
+    useEffect(() => {
+        const fetchTrending = async () => {
+            try {
+                const response = await fetch(`${baseUrl}/api/news/type/trending`);
+                const data = await response.json();
+                setTrending(data[0]);
+            } catch (error) {
+                console.error("Error fetching trending stories:", error);
+            }
+        }
+        fetchTrending();
+    }, [])
+    console.log(trending);
 
-    const popularStories = [
-        {
-            id: 1,
-            title: "Social Media Marketing for Franchises Is Meant for Women",
-            category: "Marketing",
-            date: "September 29, 2021",
-        },
-        {
-            id: 2,
-            title: "A Look at How Social Media & Mobile Gaming Can Increase Sales",
-            category: "Tech",
-            date: "September 29, 2021",
-        },
-        {
-            id: 3,
-            title: "The Secret to Your Company's Financial Health Is Very Important",
-            category: "Finance",
-            date: "September 29, 2021",
-        },
-    ];
+    useEffect(() => {
+        const fetchFresh = async () => {
+            try {
+                const response = await fetch(`${baseUrl}/api/news/type/fresh-stories`);
+                const data = await response.json();
+                setFresh(data);
+            } catch (error) {
+                console.error("Error fetching fresh stories:", error);
+            }
+        }
+        fetchFresh();
+    }, [])
 
+    useEffect(() => {
+        const fetchPopular = async () => {
+            try {
+                const response = await fetch(`${baseUrl}/api/news/type/popular`);
+                const data = await response.json();
+                setPopular(data);
+            } catch (error) {
+                console.error("Error fetching popular stories:", error);
+            }
+        }
+        fetchPopular();
+    }, [])
+
+    function formatTitle(text) {
+        if (typeof text !== 'string') {
+            console.error('Invalid input to formatTitle:', text);
+            return '';
+        }
+        return text
+            .split('-')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join(' ');
+    }
+    function formatDate(inputDate) {
+        if (!inputDate) {
+            console.error('Invalid date input:', inputDate);
+            return 'Invalid Date'; // Return a fallback value
+        }
+
+        const date = new Date(inputDate);
+
+        if (isNaN(date.getTime())) {
+            console.error('Unable to parse date:', inputDate);
+            return 'Invalid Date'; // Return a fallback value
+        }
+
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return new Intl.DateTimeFormat('en-US', options).format(date);
+    }
+    const handleTitleClick = (slug) => {
+        router.push(`/blog/${slug}`);
+    };
     return (
         <div className="container mx-auto mt-6">
             {/* Header Section */}
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                 {/* Left Column: Fresh Stories */}
-                <div className="space-y-6">
-                    <Image
-                        width={600}
-                        height={100}
-                        src="https://i.ibb.co/WK3TZpP/rec-co-jpg.png"
-                        alt="Fresh Stories"
-                        className="w-full h-[100px] object-cover"
-                    />
+                <div className="hidden md:block lg:block space-y-6">
+                    <AutoChangingBanner1 />
 
                     <div className="flex justify-end">
                         <div className="bg-white shadow-lg p-4 rounded-lg w-[70%]">
                             <h3 className="text-lg font-bold mb-4">Fresh Stories</h3>
-                            {freshStories.map((story) => (
-                                <div key={story.id} className="mb-4">
-                                    <p className="text-xs text-red-500 font-bold">{story.category}</p>
-                                    <h4 className="text-sm font-semibold">{story.title}</h4>
-                                    <p className="text-xs text-gray-500">{story.date}</p>
+                            {fresh?.slice(0, 4).map((story) => (
+                                <div key={story._id} className="mb-4">
+                                    <p className="text-xs text-red-500 font-bold ">{story.category &&  formatTitle(story.category)}</p>
+                                    <h4 className="text-sm font-semibold hover:underline hover:text-red-600 cursor-pointer" onClick={() => handleTitleClick(story.slug)}>{story.title}</h4>
+                                    <p className="text-xs text-gray-500">{ story.createdAt &&   formatDate(story.createdAt)}</p>
                                 </div>
                             ))}
                         </div>
@@ -79,41 +104,39 @@ const HomePageLayout = () => {
                 </div>
 
                 {/* Center Column: Featured Story */}
-                <div className="col-span-2 flex gap-3">
-                    <div className="relative group  overflow-hidden shadow-lg w-[70%]">
+                <div className="col-span-2 flex flex-col md:flex-row lg:flex-row  gap-3">
+                    <div className="relative group  overflow-hidden shadow-lg md:w-[70%] lg:w-[70%] w-full  ">
                         <Image
                             width={600}
                             height={400}
-                            src="https://i.ibb.co/F5CdhmQ/Container-1.png"
+                            src={`${baseUrl}/${trending.coverImage}`}
                             alt="Featured Story"
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                         <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col justify-end p-6">
                             <span className="bg-red-500 text-xs uppercase px-2 py-1 rounded text-white">
-                                Exclusive
+                                {trending?.category &&    formatTitle(trending?.category)}
                             </span>
                             <h2 className="text-white text-2xl font-bold mt-2">
-                                Social Media Marketing for Franchises Is Meant for Women
+                                {trending?.title}
                             </h2>
                             <p className="text-gray-300 text-sm mt-2">
-                                Trends and insights on how to expand your reach in the digital
-                                space.
+                                {trending?.shortDescription}
                             </p>
                         </div>
                     </div>
-
-                    <div className="grid grid-cols-1 gap-4 mt-6 w-[30%]">
-                        {popularStories.map((story) => (
-                            <div key={story.id} className="relative group overflow-hidden  shadow-md">
+                    <div className="grid grid-cols-1 gap-4 mt-6 md:w-[30%] lg:w-[30%] w-full h-fit ">
+                        {popular.slice(0, 4).map((story) => (
+                            <div key={story._id} className="relative group overflow-hidden  shadow-md cursor-pointer" onClick={() => handleTitleClick(story.slug)}>
                                 <Image
                                     width={300}
                                     height={200}
-                                    src="https://i.ibb.co/F5CdhmQ/Container-1.png"
+                                    src={`${baseUrl}/${story.coverImage}`}
                                     alt={story.title}
-                                    className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300"
+                                    className="w-full md:h-32 lg:h-32 h-60 object-cover group-hover:scale-105 transition-transform duration-300"
                                 />
                                 <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 p-4 text-white">
-                                    <p className="text-xs">{story.category}</p>
+                                    <p className="text-xs">{story.category &&   formatTitle(story.category)}</p>
                                     <h4 className="text-sm font-semibold">{story.title}</h4>
                                 </div>
                             </div>
@@ -122,24 +145,20 @@ const HomePageLayout = () => {
                 </div>
 
                 {/* Right Column: Popular Stories */}
-                <div className="space-y-6">
-                    <Image
-                        width={600}
-                        height={100}
-                        src="https://i.ibb.co/WK3TZpP/rec-co-jpg.png"
-                        alt="Fresh Stories"
-                        className="w-full h-[100px] object-cover"
-                    />
+                <div className="ml-7 md:ml-0 lg:ml-0">
+                    <div className="space-y-6">
+                        <AutoChangingBanner2 />
 
-                    <div className="bg-white shadow-lg p-4 rounded-lg w-[70%]">
-                        <h3 className="text-lg font-bold mb-4">Popular</h3>
-                        {popularStories.map((story) => (
-                            <div key={story.id} className="mb-4">
-                                <p className="text-xs text-red-500 font-bold">{story.category}</p>
-                                <h4 className="text-sm font-semibold">{story.title}</h4>
-                                <p className="text-xs text-gray-500">{story.date}</p>
-                            </div>
-                        ))}
+                        <div className="bg-white shadow-lg p-4 rounded-lg md:w-[70%] lg:w-[70%] w-full">
+                            <h3 className="text-lg font-bold mb-4">Popular</h3>
+                            {popular.slice(0, 4).map((story) => (
+                                <div key={story._id} className="mb-4">
+                                    <p className="text-xs text-red-500 font-bold ">{story.category &&   formatTitle(story.category)}</p>
+                                    <h4 className="text-sm font-semibold hover:underline hover:text-red-600 cursor-pointer" onClick={() => handleTitleClick(story.slug)}>{story.title}</h4>
+                                    <p className="text-xs text-gray-500">{story.createdAt &&    formatDate(story.createdAt)}</p>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>
