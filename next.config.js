@@ -11,6 +11,10 @@ module.exports = {
       },
       {
         protocol: 'http',
+        hostname: 'server.textiletrend.net',
+      },
+      {
+        protocol: 'http',
         hostname: 'localhost',
       },
     ],
