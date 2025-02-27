@@ -3,14 +3,14 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import baseUrl from "../services/baseUrl";
 
-const CelebritySection = () => {
+const CelebritySection = ({ category}) => {
   const router = useRouter();
   const [celebrities, setCelebrities] = useState([]);
   useEffect(() => {
     const fetchCelebrities = async () => {
       try {
         const response = await fetch(
-          `${baseUrl}/api/news/category/tread-and-export`
+          `${baseUrl}/api/news/category/${category.slug}`
         )
         const data = await response.json();
         setCelebrities(data);
@@ -20,7 +20,7 @@ const CelebritySection = () => {
     }
 
     fetchCelebrities();
-  }, []);
+  }, [category]);
   function formatDate(inputDate) {
     if (!inputDate) {
       console.error('Invalid date input:', inputDate);
@@ -44,8 +44,8 @@ const CelebritySection = () => {
     <div className="bg-white py-8 px-10">
       <div className="container mx-auto">
         {/* Section Header */}
-        <div className="mb-6">
-          <h2 className="text-xl font-bold">Tread & Export</h2>
+        <div className="mb-6 border-b-4 border-red-500 pb-4">
+          <h2 className="text-2xl font-bold">{category.name}</h2>
         </div>
 
         {/* Highlighted Articles */}

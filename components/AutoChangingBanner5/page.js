@@ -4,7 +4,7 @@ import Image from "next/image";
 import baseUrl from "../services/baseUrl";
 
 const AutoChangingBanner5 = () => {
-  const API_URL = `${baseUrl}/api/banners`;
+  const API_URL = `${baseUrl}/api/banners/frontend`;
   const [images, setImages] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [animate, setAnimate] = useState(false); // State to handle animation
@@ -14,7 +14,7 @@ const AutoChangingBanner5 = () => {
       try {
         const response = await axios.get(API_URL);
         if (response.data.length > 0) {
-          setImages(response.data[0].images); // Set images from the first index
+          setImages(response.data[4].images); // Set images from the first index
         }
       } catch (error) {
         console.error("Error fetching banners:", error);
@@ -42,17 +42,18 @@ const AutoChangingBanner5 = () => {
     <div className="relative overflow-hidden w-full h-[100px]">
       {images.length > 0 ? (
         <div
-          className={`w-full h-full transition-transform duration-500 ease-in-out ${
-            images.length > 1 && animate ? "translate-x-full" : "translate-x-0"
-          }`}
+          className={`w-full h-full transition-transform duration-500 ease-in-out ${images.length > 1 && animate ? "translate-x-full" : "translate-x-0"
+            }`}
         >
-          <Image
-            width={800}
-            height={100}
-            src={`${baseUrl}/${images[currentIndex].url.replace(/\\/g, "/")}`}
-            alt="Auto Changing Banner"
-            className="w-full h-[100px] object-cover"
-          />
+          <a href={images[currentIndex].link}>
+            <Image
+              width={800}
+              height={100}
+              src={`${baseUrl}/${images[currentIndex].url.replace(/\\/g, "/")}`}
+              alt="Auto Changing Banner"
+              className="w-full h-[100px] object-cover"
+            />
+          </a>
         </div>
       ) : (
         <p></p>

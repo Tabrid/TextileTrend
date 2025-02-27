@@ -27,7 +27,8 @@ const DrawerMenu = () => {
     fetchCategories();
   }, [API_URL]);
   const navigateToCategory = (slug) => {
-    router.push(`/category/${slug}`);
+    router.push(`/category/${slug}`)
+    dispatch(closeDrawer())
   };
   return (
     <div>

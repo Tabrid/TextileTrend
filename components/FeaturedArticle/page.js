@@ -54,7 +54,7 @@ const FeaturedArticle = ({ data }) => {
             </div>
             <div className=" flex justify-center ">
                 <div className=" my-2 flex flex-col md:flex-row lg:flex-row ">
-                    <span className="text-sm text-center font-bold">By: Admin</span>
+                    <span className="text-sm text-center font-bold">By: { data?.creator ? data?.creator : 'Admin'   }</span>
                     <span className="mx-4 hidden md:block lg:block">|</span>
                     <span className="text-sm text-center font-bold mb-3">Date: {  data?.createdAt &&    formatDate(data?.createdAt)}</span>
                 </div>

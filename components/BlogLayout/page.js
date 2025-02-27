@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import baseUrl from "../services/baseUrl";
+import Link from "next/link";
 
 
 const BlogLayout = ({ data }) => {
@@ -13,7 +14,39 @@ const BlogLayout = ({ data }) => {
     const totalPages = Math.ceil(data?.length / itemsPerPage);
 
     const router = useRouter();
+    const [email, setEmail] = useState("");
+    const [isChecked, setIsChecked] = useState(false);
+    const [message, setMessage] = useState("");
 
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        if (!email.includes("@")) {
+            setMessage("Please enter a valid email address.");
+            return;
+        }
+
+        if (!isChecked) {
+            setMessage("You must accept the Privacy Policy.");
+            return;
+        }
+
+        const response = await fetch(`${baseUrl}/api/subscribe`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email }),
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            setMessage("Subscription successful!");
+            setEmail("");
+            setIsChecked(false);
+        } else {
+            setMessage(data.error);
+            setEmail("");
+        }
+    };
     function formatDate(inputDate) {
         const date = new Date(inputDate);
         const options = { year: "numeric", month: "long", day: "numeric" };
@@ -108,20 +141,35 @@ const BlogLayout = ({ data }) => {
                                     {article.title}
                                 </h2>
                                 <p className="text-sm text-gray-500">
-                                    Admin -
+                                    {article?.creator ? article.creator : 'Admin'}  -
                                     {
                                         article.createdAt ? formatDate(article.createdAt) : ' '
                                     }
 
                                 </p>
                                 <p className="text-sm text-gray-600 mt-2">
-                                    Find insights with high expectations and a lot of relevance...
+                                    {article?.shortDescription?.length > 100
+                                        ? `${article.shortDescription.substring(0, 130)}...`
+                                        : article.shortDescription}
                                 </p>
                             </div>
                         </div>
                     ))}
                 </div>
-
+                {totalPages > 1 && (
+                    <div className="flex justify-center items-center space-x-2 mt-8  md:hidden lg:hidden ">
+                        {[...Array(totalPages)].map((_, index) => (
+                            <button
+                                key={index}
+                                onClick={() => handlePageChange(index + 1)}
+                                className={`px-4 py-2 rounded-full ${currentPage === index + 1 ? "bg-red-500 text-white" : "bg-gray-300"
+                                    }`}
+                            >
+                                {index + 1}
+                            </button>
+                        ))}
+                    </div>
+                )}
                 {/* Sidebar Section */}
                 <div className="lg:sticky lg:top-8 h-fit overflow-y-auto">
                     {/* Popular Section */}
@@ -154,7 +202,7 @@ const BlogLayout = ({ data }) => {
                         </div>
                         <div className="p-4 absolute bottom-0 left-0 right-0">
                             <h3 className="text-lg font-bold text-white p-2 rounded">{currentPost.title}</h3>
-                            <p className="text-sm text-white mt-2 p-2">By : Admin - {
+                            <p className="text-sm text-white mt-2 p-2">By : {currentPost?.creator ? currentPost.creator : 'Admin'} - {
                                 currentPost.createdAt ? formatDate(currentPost.createdAt) : ' '
                             }</p>
                         </div>
@@ -163,12 +211,14 @@ const BlogLayout = ({ data }) => {
                     {/* Subscribe Section */}
                     <div className="bg-white p-4 rounded-lg shadow my-4">
                         <h3 className="text-lg font-bold text-gray-800 mb-4">Subscribe</h3>
-                        <form>
+                        <form onSubmit={handleSubmit}>
                             <input
                                 type="email"
                                 placeholder="Email address"
                                 className="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-red-500"
                                 required
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
                             />
                             <button
                                 type="submit"
@@ -183,23 +233,26 @@ const BlogLayout = ({ data }) => {
                                     id="privacy-policy"
                                     className="mr-2"
                                     required
+                                    checked={isChecked}
+                                    onChange={() => setIsChecked(!isChecked)}
                                 />
                                 <label htmlFor="privacy-policy" className="text-sm text-gray-600">
                                     Ive read and accept the{" "}
-                                    <a href="#" className="text-red-500 underline">
+                                    <Link href="/privacy-policy" className="text-red-500 underline">
                                         Privacy Policy
-                                    </a>
-                                    .
+                                    </Link>
+
                                 </label>
                             </div>
                         </form>
+                        {message && <p className="mt-2 text-sm text-red-500">{message}</p>}
                     </div>
                 </div>
             </div>
 
             {/* Pagination */}
             {totalPages > 1 && (
-                <div className="flex justify-center items-center space-x-2 mt-8">
+                <div className="md:flex lg:flex justify-center items-center space-x-2 mt-8 hidden ">
                     {[...Array(totalPages)].map((_, index) => (
                         <button
                             key={index}

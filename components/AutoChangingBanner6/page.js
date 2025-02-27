@@ -3,7 +3,7 @@ import axios from "axios";
 import Image from "next/image";
 import baseUrl from "../services/baseUrl";
 
-const AutoChangingBanner3 = () => {
+const AutoChangingBanner6 = () => {
   const API_URL = `${baseUrl}/api/banners/frontend`;
   const [images, setImages] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -14,7 +14,7 @@ const AutoChangingBanner3 = () => {
       try {
         const response = await axios.get(API_URL);
         if (response.data.length > 0) {
-          setImages(response.data[2].images); // Set images from the first index
+          setImages(response.data[5].images); // Set images from the first index
         }
       } catch (error) {
         console.error("Error fetching banners:", error);
@@ -32,7 +32,7 @@ const AutoChangingBanner3 = () => {
           setAnimate(false); // Reset animation
           setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
         }, 500); // Transition duration (match CSS duration)
-      }, 5000); // Change image every 5 seconds
+      }, 15000); // Change image every 30 seconds
 
       return () => clearInterval(interval); // Cleanup on component unmount
     }
@@ -62,4 +62,4 @@ const AutoChangingBanner3 = () => {
   );
 };
 
-export default AutoChangingBanner3;
+export default AutoChangingBanner6;

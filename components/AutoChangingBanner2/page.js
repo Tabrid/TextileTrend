@@ -4,7 +4,7 @@ import Image from "next/image";
 import baseUrl from "../services/baseUrl";
 
 const AutoChangingBanner2 = () => {
-  const API_URL = `${baseUrl}/api/banners`;
+  const API_URL = `${baseUrl}/api/banners/frontend`;
   const [images, setImages] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [animate, setAnimate] = useState(false); // State to handle animation
@@ -14,7 +14,7 @@ const AutoChangingBanner2 = () => {
       try {
         const response = await axios.get(API_URL);
         if (response.data.length > 0) {
-          setImages(response.data[0].images); // Set images from the first index
+          setImages(response.data[1].images); // Set images from the first index
         }
       } catch (error) {
         console.error("Error fetching banners:", error);
@@ -32,7 +32,7 @@ const AutoChangingBanner2 = () => {
           setAnimate(false); // Reset animation
           setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
         }, 500); // Transition duration (match CSS duration)
-      }, 5000); // Change image every 5 seconds
+      }, 6000); // Change image every 5 seconds
 
       return () => clearInterval(interval); // Cleanup on component unmount
     }
@@ -42,17 +42,18 @@ const AutoChangingBanner2 = () => {
     <div className="relative overflow-hidden w-full h-[100px]">
       {images.length > 0 ? (
         <div
-          className={`w-full h-full transition-transform duration-500 ease-in-out ${
-            images.length > 1 && animate ? "translate-x-full" : "translate-x-0"
-          }`}
+          className={`w-full h-full transition-transform duration-500 ease-in-out ${images.length > 1 && animate ? "translate-x-full" : "translate-x-0"
+            }`}
         >
-          <Image
-            width={800}
-            height={100}
-            src={`${baseUrl}/${images[currentIndex].url.replace(/\\/g, "/")}`}
-            alt="Auto Changing Banner"
-            className="w-full h-[100px] object-cover"
-          />
+          <a href={images[currentIndex].link}>
+            <Image
+              width={800}
+              height={100}
+              src={`${baseUrl}/${images[currentIndex].url.replace(/\\/g, "/")}`}
+              alt="Auto Changing Banner"
+              className="w-full h-[100px] object-cover"
+            />
+          </a>
         </div>
       ) : (
         <p></p>

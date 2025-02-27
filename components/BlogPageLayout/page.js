@@ -6,9 +6,44 @@ import parse from 'html-react-parser';
 import { useRouter } from "next/navigation";
 import AutoChangingBanner5 from "../AutoChangingBanner5/page";
 import baseUrl from "../services/baseUrl";
+import Link from "next/link";
 const BlogPageLayout = ({ data }) => {
     const router = useRouter();
     const [popular, setPopular] = useState([]);
+    const [email, setEmail] = useState("");
+    const [isChecked, setIsChecked] = useState(false);
+    const [message, setMessage] = useState("");
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        if (!email.includes("@")) {
+            setMessage("Please enter a valid email address.");
+            return;
+        }
+
+        if (!isChecked) {
+            setMessage("You must accept the Privacy Policy.");
+            return;
+        }
+
+        const response = await fetch(`${baseUrl}/api/subscribe`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email }),
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            setMessage("Subscription successful!");
+            setEmail("");
+            setIsChecked(false);
+        } else {
+            setMessage(data.error);
+            setEmail("");
+        }
+    };
+    const postUrl = typeof window !== "undefined" ? window.location.href : ""; // Get the current page URL
     useEffect(() => {
         const fetchPopular = async () => {
             try {
@@ -34,6 +69,32 @@ const BlogPageLayout = ({ data }) => {
             .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
             .join(' ');
     }
+    const shareOnFacebook = () => {
+        const appId = "588951087305384"; // Replace with your actual App ID
+        if (!appId) {
+            console.error("Facebook App ID is required.");
+            return;
+        }
+
+        if (typeof window !== "undefined") {
+            const postUrl = encodeURIComponent(window.location.href);
+            const shareUrl = `https://www.facebook.com/dialog/share?app_id=${appId}&display=popup&href=${postUrl}&quote=${encodeURIComponent("Check this out!")}`;
+
+            window.open(shareUrl, "_blank", "width=600,height=400,noopener,noreferrer");
+        }
+    };
+
+
+
+    const shareOnTwitter = () => {
+        const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(data?.title + " - " + data?.shortDescription)}&url=${encodeURIComponent(postUrl)}`;
+        window.open(url, "_blank");
+    };
+
+    const shareOnWhatsapp = () => {
+        const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(data?.title + " - " + data?.shortDescription + " " + postUrl)}`;
+        window.open(url, "_blank");
+    };
     return (
         <div className="bg-gray-100 md:p-8 lg:p-8 p-0">
             <div className="container  grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -52,16 +113,13 @@ const BlogPageLayout = ({ data }) => {
                             SHARE POST:
                         </h3>
                         <div className="flex justify-center space-x-4">
-                            <button className="bg-red-500 text-white p-3 rounded-lg shadow hover:bg-red-600">
+                            <button onClick={shareOnFacebook} className="bg-blue-600 text-white p-3 rounded-lg shadow hover:bg-blue-700">
                                 <FaFacebookF />
                             </button>
-                            <button className="bg-red-500 text-white p-3 rounded-lg shadow hover:bg-red-600">
+                            <button onClick={shareOnTwitter} className="bg-blue-400 text-white p-3 rounded-lg shadow hover:bg-blue-500">
                                 <FaTwitter />
                             </button>
-                            <button className="bg-red-500 text-white p-3 rounded-lg shadow hover:bg-red-600">
-                                <FaPinterestP />
-                            </button>
-                            <button className="bg-red-500 text-white p-3 rounded-lg shadow hover:bg-red-600">
+                            <button onClick={shareOnWhatsapp} className="bg-green-500 text-white p-3 rounded-lg shadow hover:bg-green-600">
                                 <FaWhatsapp />
                             </button>
                         </div>
@@ -70,13 +128,15 @@ const BlogPageLayout = ({ data }) => {
                     {/* Subscribe Widget */}
                     <div className="bg-white p-4 rounded-lg shadow my-4">
                         <h3 className="text-lg font-bold text-gray-800 mb-4">Subscribe</h3>
-                        <form>
+                        <form onSubmit={handleSubmit}>
                             {/* Email Input */}
                             <input
                                 type="email"
                                 placeholder="Email address"
                                 className="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-red-500"
                                 required
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
                             />
 
                             {/* Submit Button */}
@@ -95,22 +155,25 @@ const BlogPageLayout = ({ data }) => {
                                     id="privacy-policy"
                                     className="mr-2"
                                     required
+                                    checked={isChecked}
+                                    onChange={(e) => setIsChecked(e.target.checked)}
                                 />
                                 <label htmlFor="privacy-policy" className="text-sm text-gray-600">
                                     Ive read and accept the{" "}
-                                    <a href="#" className="text-red-500 underline">
+                                    <Link href="/privacy-policy" className="text-red-500 underline">
                                         Privacy Policy
-                                    </a>
+                                    </Link>
                                     .
                                 </label>
                             </div>
                         </form>
+                        {message && <p className="mt-2 text-sm text-red-500">{message}</p>}
                     </div>
 
                     {/* Advertisement Widget */}
                     <div className="bg-white p-4 rounded-lg shadow mb-6">
                         <h3 className="text-lg font-bold text-gray-800 mb-4">Advertisement</h3>
-                        <AutoChangingBanner5/>
+                        <AutoChangingBanner5 />
                     </div>
 
                     {/* Popular Posts */}

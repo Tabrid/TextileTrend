@@ -107,7 +107,9 @@ const SearchDrawer = () => {
           ) : searchResults.length > 0 ? (
             searchResults.slice(0, 3).map((result) => (
               <div key={result._id} onClick={() => {
-                router.push(`/blog/${result.slug}`);
+                router.push(`/blog/${result.slug}`)
+                dispatch(closeSearchDrawer())
+                setSearchTerm('')
               }}>
                 <h3 className="text-sm text-gray-500">{new Date(result.createdAt).toLocaleDateString()}</h3>
                 <p className="text-lg font-semibold">{result.title}</p>

@@ -1,15 +1,15 @@
-'use client'
-import BlogPageLayout from '@/components/BlogPageLayout/page'
-import FeaturedArticle from '@/components/FeaturedArticle/page'
+'use client';
+import BlogPageLayout from '@/components/BlogPageLayout/page';
+import FeaturedArticle from '@/components/FeaturedArticle/page';
 import baseUrl from '@/components/services/baseUrl';
 import axios from 'axios';
 import { useParams } from 'next/navigation';
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 
-function Blog() {
+export default function Blog() {
   const { blog } = useParams();
   const [categoryData, setCategoryData] = useState(null);
- 
+
   useEffect(() => {
     const fetchCategoryData = async () => {
       try {
@@ -25,13 +25,10 @@ function Blog() {
     }
   }, [blog]);
 
-  
   return (
     <div>
-      <FeaturedArticle data={categoryData}/>
-      <BlogPageLayout  data={categoryData}/>
+      <FeaturedArticle data={categoryData} />
+      <BlogPageLayout data={categoryData} />
     </div>
-  )
+  );
 }
-
-export default Blog

@@ -1,15 +1,14 @@
 'use client';
 import React, { useEffect, useState } from "react";
 import { IoMenu } from "react-icons/io5";
-import { CiSearch } from "react-icons/ci";
 import { openDrawer } from "@/lib/slices/menuDrawerSlice";
 import { useDispatch } from "react-redux";
 import { openSearchDrawer } from "@/lib/slices/searchDrawerSlice";
 import Image from "next/image";
-import logo from "@/public/images/logo.jpg";
+import logo from "@/public/images/Website-01.png";
 import { useRouter } from "next/navigation";
 import baseUrl from "../services/baseUrl";
-
+import { CiSearch } from "react-icons/ci";
 const Navbar = () => {
   const [dateTime, setDateTime] = useState("");
   const [time, setTime] = useState("");
@@ -17,13 +16,13 @@ const Navbar = () => {
   const [categories, setCategories] = useState([]);
   const dispatch = useDispatch();
   const router = useRouter();
-  const API_URL = `${baseUrl}/api/categories`;
+  const API_URL = `${baseUrl}/api/categories/status/true`;
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const fetchSearchResults = async (query) => {
-    if (!query.trim()) return; // Avoid fetching if the input is empty
+    if (!query.trim()) return;
     try {
       setLoading(true);
       const response = await fetch(`${baseUrl}/api/news/search?title=${encodeURIComponent(query)}`);
@@ -35,7 +34,6 @@ const Navbar = () => {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
       if (searchTerm) {
@@ -109,7 +107,7 @@ const Navbar = () => {
     <div
       className={`${scrolled
         ? "bg-white shadow-lg py-2 sticky top-0 z-[9999]"
-        : "bg-white py-4"
+        : "bg-white "
         } border-b border-gray-200  px-4 md:px-0 lg:px-0 transition-all duration-300 ease-in-out`}
     >
       {/* Top Bar */}
@@ -125,7 +123,7 @@ const Navbar = () => {
               height={100}
               src={logo}
               alt="Fresh Stories"
-              className="w-[200px] h-full object-cover cursor-pointer"
+              className="w-[300px] h-full object-cover cursor-pointer"
               onClick={() => router.push("/")}
             />
           </div>
@@ -172,7 +170,8 @@ const Navbar = () => {
                             key={result._id}
                             className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex gap-2 items-center"
                             onClick={() => {
-                              router.push(`/blog/${result.slug}`);
+                              router.push(`/blog/${result.slug}`)
+                              setSearchTerm('')
                             }}
                           >
                             <Image
@@ -204,7 +203,7 @@ const Navbar = () => {
                 height={100}
                 src={logo}
                 alt="Fresh Stories"
-                className="w-[300px] h-full object-cover cursor-pointer"
+                className="w-[400px] h-full object-cover cursor-pointer"
                 onClick={() => router.push("/")}
               />
             </div>
